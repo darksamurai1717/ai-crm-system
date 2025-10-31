@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CRM Pro</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-chart-line"></i> CRM Pro</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/team" class="nav-item">
+                    <i class="fas fa-users"></i> Team
+                </a>
+                <a href="/analytics" class="nav-item">
+                    <i class="fas fa-chart-pie"></i> Analytics
+                </a>
+            </nav>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Dashboard</h1>
+                    <div class="breadcrumb">
+                        <span>Home</span> / <span class="active">Dashboard Overview</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <i class="fas fa-bell notification-bell"></i>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM4QjVDRjYiLz48dGV4dCB4PSIyMCIgeT0iMjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij5BRDwvdGV4dD48L3N2Zz4=" alt="User" class="profile-pic">
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- KPI CARDS -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon revenue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="total-revenue">$0</h3>
+                            <p>Total Revenue</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon conversion">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="conversion-rate">0%</h3>
+                            <p>Conversion Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon deals">
+                            <i class="fas fa-heart-broken"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="churn-rate">0%</h3>
+                            <p>Churn Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon leads">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="total-leads">0</h3>
+                            <p>Total Leads</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHARTS SECTION -->
+            <div class="charts-grid">
+                <!-- Revenue Chart -->
+                <div class="chart-card large">
+                    <div class="chart-header">
+                        <h3>Revenue Trend (6 Months)</h3>
+                        <div class="card-controls">
+                            <button class="control-btn"><i class="fas fa-filter"></i></button>
+                            <button class="control-btn"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                    <canvas id="revenueChart" height="80"></canvas>
+                </div>
+
+                <!-- Pipeline Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Sales Pipeline</h3>
+                    </div>
+                    <canvas id="pipelineChart" height="80"></canvas>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Recent Activities</h3>
+                    </div>
+                    <div class="activity-list">
+                        <div id="activities-container">
+                            <p style="color: rgba(255,255,255,0.7); text-align: center; padding: 1rem;">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTTOM ROW - TWO CHARTS -->
+            <div class="charts-grid" style="margin-top: 1.5rem;">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Top Sales Reps</h3>
+                    </div>
+                    <canvas id="topRepsChart" height="80"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Quick Stats</h3>
+                    </div>
+                    <div style="padding: 1rem; color: white;">
+                        <div style="display: flex; justify-content: space-between; margin: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem;">
+                            <span>Active Deals:</span>
+                            <strong id="active-deals">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem;">
+                            <span>New Leads (Today):</span>
+                            <strong style="color: #43e97b;">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin: 0.75rem 0;">
+                            <span>Tasks Pending:</span>
+                            <strong style="color: #f59e0b;">0</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Performance - CRM Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-chart-line"></i> CRM Pro</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/team" class="nav-item active">
+                    <i class="fas fa-users"></i> Team
+                </a>
+                <div class="nav-item">
+                    <i class="fas fa-user-friends"></i> Leads
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-handshake"></i> Deals
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-chart-pie"></i> Analytics
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-cog"></i> Settings
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Team Performance</h1>
+                    <div class="breadcrumb">
+                        <span>Team</span> / <span class="active">Performance</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="time-selector">
+                        <button class="time-btn">Day</button>
+                        <button class="time-btn active">Week</button>
+                        <button class="time-btn">Month</button>
+                        <button class="time-btn">Year</button>
+                    </div>
+                    <div class="user-profile">
+                        <i class="fas fa-bell notification-bell"></i>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM4QjVDRjYiLz48dGV4dCB4PSIyMCIgeT0iMjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij5KRDwvdGV4dD48L3N2Zz4=" alt="User" class="profile-pic">
+                        <span>John Doe</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Team Stats -->
+            <div class="team-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon team">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="team-size">5</h3>
+                            <p>Team Members</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon performance">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="avg-performance">86.4%</h3>
+                            <p>Avg Performance</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon revenue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="team-revenue">$891,500</h3>
+                            <p>Team Revenue</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-content">
+                        <div class="stat-icon target">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 id="target-achievement">87.4%</h3>
+                            <p>Target Achievement</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Performance Table and Charts -->
+            <div class="team-content-grid">
+                <!-- Team Members List -->
+                <div class="team-card large">
+                    <div class="card-header">
+                        <h3>Team Performance</h3>
+                        <div class="card-controls">
+                            <button class="control-btn"><i class="fas fa-filter"></i></button>
+                            <button class="control-btn"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                    <div class="team-list" id="team-list">
+                        <!-- Team members will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Performance Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Performance Comparison</h3>
+                    </div>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+
+                <!-- Recent Tasks -->
+                <div class="tasks-card">
+                    <div class="card-header">
+                        <h3>Recent Tasks</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="tasks-list" id="tasks-list">
+                        <!-- Tasks will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/team.js"></script>
+</body>
+</html>
+        

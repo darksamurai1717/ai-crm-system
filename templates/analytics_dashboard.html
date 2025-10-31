@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - CRM Pro</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-chart-line"></i> CRM Pro</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/team" class="nav-item">
+                    <i class="fas fa-users"></i> Team
+                </a>
+                <a href="/analytics" class="nav-item active">
+                    <i class="fas fa-chart-pie"></i> Analytics
+                </a>
+            </nav>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Analytics & Insights</h1>
+                    <div class="breadcrumb">
+                        <span>Analytics</span> / <span class="active">Comprehensive Report</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="user-profile">
+                        <i class="fas fa-bell notification-bell"></i>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM4QjVDRjYiLz48dGV4dCB4PSIyMCIgeT0iMjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij5BRDwvdGV4dD48L3N2Zz4=" alt="User" class="profile-pic">
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- KPI CARDS -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon revenue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="analytics-revenue">$0</h3>
+                            <p>Total Revenue</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon conversion">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="analytics-conversion">0%</h3>
+                            <p>Conversion Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon deals">
+                            <i class="fas fa-heart-broken"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="analytics-churn">0%</h3>
+                            <p>Churn Rate</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon leads">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="analytics-growth">0%</h3>
+                            <p>Growth Rate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHARTS ROW 1: Revenue & Pipeline -->
+            <div class="charts-grid">
+                <!-- Revenue Trend -->
+                <div class="chart-card large">
+                    <div class="chart-header">
+                        <h3>Revenue Trend (6 Months)</h3>
+                        <div class="card-controls">
+                            <button class="control-btn"><i class="fas fa-filter"></i></button>
+                            <button class="control-btn"><i class="fas fa-download"></i></button>
+                        </div>
+                    </div>
+                    <canvas id="analyticsRevenueChart" height="100"></canvas>
+                </div>
+
+                <!-- Pipeline Distribution -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Pipeline Stage Distribution</h3>
+                    </div>
+                    <canvas id="analyticsPipelineChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <!-- CHARTS ROW 2: Segments & Churn -->
+            <div class="charts-grid" style="margin-top: 1.5rem;">
+                <!-- Customer Segments -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Customer Segmentation</h3>
+                    </div>
+                    <canvas id="segmentChart" height="150"></canvas>
+                </div>
+
+                <!-- Churn Risk -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Churn Risk Distribution</h3>
+                    </div>
+                    <canvas id="churnRiskChart" height="150"></canvas>
+                </div>
+            </div>
+
+            <!-- SUMMARY STATS -->
+            <div class="charts-grid" style="margin-top: 1.5rem;">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Key Metrics Summary</h3>
+                    </div>
+                    <div style="padding: 1.5rem; color: white; line-height: 2;">
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem;">
+                            <span>Total Active Leads:</span>
+                            <strong style="color: #00D9FF;">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.75rem 0;">
+                            <span>High-Value Customers:</span>
+                            <strong style="color: #45B7D1;">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0.75rem 0;">
+                            <span>At-Risk Customers:</span>
+                            <strong style="color: #FF6B6B;">0</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+                            <span>Growth Momentum:</span>
+                            <strong style="color: #00C9A7;">Positive</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Predicted Trends</h3>
+                    </div>
+                    <div style="padding: 1.5rem; color: white;">
+                        <div style="background: rgba(0, 217, 255, 0.1); border-left: 4px solid #00D9FF; padding: 1rem; border-radius: 4px; margin-bottom: 0.75rem;">
+                            <div style="color: #00D9FF; font-weight: 600; font-size: 0.9rem;">📈 Revenue Forecast</div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 0.25rem;">Expecting 15-20% growth next quarter</div>
+                        </div>
+                        <div style="background: rgba(69, 183, 209, 0.1); border-left: 4px solid #45B7D1; padding: 1rem; border-radius: 4px; margin-bottom: 0.75rem;">
+                            <div style="color: #45B7D1; font-weight: 600; font-size: 0.9rem;">🎯 Conversion Opportunity</div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 0.25rem;">Warm leads have 70% conversion potential</div>
+                        </div>
+                        <div style="background: rgba(255, 107, 107, 0.1); border-left: 4px solid #FF6B6B; padding: 1rem; border-radius: 4px;">
+                            <div style="color: #FF6B6B; font-weight: 600; font-size: 0.9rem;">⚠️ Churn Alert</div>
+                            <div style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-top: 0.25rem;">12 customers flagged for retention outreach</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/analytics.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+name,email,phone,company,status,created_date,last_contact,notes,score
+John Smith,john.smith@techcorp.com,555-0101,TechCorp Inc,New,2025-10-23,2025-10-28,Interested in enterprise plan,0
+Sarah Johnson,sarah.j@innovate.com,555-0102,Innovate Solutions,Contacted,2025-10-18,2025-10-26,Demo scheduled for next week,0
+Mike Davis,mike.davis@startupco.com,555-0103,StartupCo,Qualified,2025-10-13,2025-10-27,"Budget approved, awaiting final decision",0
+Emily Brown,emily.b@globaltech.com,555-0104,GlobalTech,Converted,2025-09-28,2025-10-25,Signed annual contract - $50K,0
+Robert Wilson,r.wilson@marketingpro.com,555-0105,Marketing Pro,New,2025-10-25,2025-10-25,Requested pricing information,0
+Lisa Anderson,l.anderson@salesforce99.com,555-0106,SalesForce 99,Contacted,2025-10-21,2025-10-28,Follow-up call scheduled,0
+David Martinez,d.martinez@consulting.com,555-0107,Consulting Group,Qualified,2025-10-08,2025-10-26,Interested in premium features,0
+Jennifer Lee,j.lee@dataanalytics.com,555-0108,Data Analytics Co,New,2025-10-27,2025-10-27,Website inquiry - needs demo,0

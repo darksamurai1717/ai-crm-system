@@ -1,0 +1,19 @@
+metric,value,last_updated
+total_leads,39,2025-10-14 19:52:57
+converted_leads,1,2025-10-14 19:52:57
+conversion_rate,2.564102564102564,2025-10-14 19:52:57
+total_customers,0,2025-10-14 19:52:57
+high_risk_customers,0,2025-10-14 19:52:57
+churn_percentage,0,2025-10-14 19:52:57
+avg_churn_risk,0,2025-10-14 19:52:57
+total_deals,1,2025-10-14 19:52:57
+deals_won,0,2025-10-14 19:52:57
+deals_lost,1,2025-10-14 19:52:57
+win_rate,0.0,2025-10-14 19:52:57
+total_revenue,0,2025-10-14 19:52:57
+avg_deal_size,0,2025-10-14 19:52:57
+team_size,5,2025-10-14 19:52:57
+avg_team_performance,0.75,2025-10-14 19:52:57
+top_performer,Alice Johnson,2025-10-14 19:52:57
+team_total_revenue,0,2025-10-14 19:52:57
+avg_customer_value,44.40599409765398,2025-10-14 19:52:57

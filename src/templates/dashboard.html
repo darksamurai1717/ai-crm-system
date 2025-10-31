@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Analytics Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-chart-line"></i> CRM Pro</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/" class="nav-item active">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+                <a href="/team" class="nav-item">
+                    <i class="fas fa-users"></i> Team
+                </a>
+                <div class="nav-item">
+                    <i class="fas fa-user-friends"></i> Leads
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-handshake"></i> Deals
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-chart-pie"></i> Analytics
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-cog"></i> Settings
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Dashboard</h1>
+                    <div class="breadcrumb">
+                        <span>Analytics</span> / <span class="active">Overview</span>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="time-selector">
+                        <button class="time-btn">Day</button>
+                        <button class="time-btn active">Week</button>
+                        <button class="time-btn">Month</button>
+                        <button class="time-btn">Year</button>
+                    </div>
+                    <div class="user-profile">
+                        <i class="fas fa-bell notification-bell"></i>
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM4QjVDRjYiLz48dGV4dCB4PSIyMCIgeT0iMjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij5KRDwvdGV4dD48L3N2Zz4=" alt="User" class="profile-pic">
+                        <span>John Doe</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon revenue">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="total-revenue">$2,847,350</h3>
+                            <p>Total Revenue</p>
+                            <span class="kpi-change positive">+15.3%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon conversion">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="conversion-rate">68.5%</h3>
+                            <p>Conversion Rate</p>
+                            <span class="kpi-change positive">+5.2%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon leads">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="total-leads">1,542</h3>
+                            <p>Active Leads</p>
+                            <span class="kpi-change positive">+12.8%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-content">
+                        <div class="kpi-icon deals">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="kpi-details">
+                            <h3 id="active-deals">89</h3>
+                            <p>Active Deals</p>
+                            <span class="kpi-change negative">-3.1%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts and Data -->
+            <div class="charts-grid">
+                <!-- Revenue Chart -->
+                <div class="chart-card large">
+                    <div class="chart-header">
+                        <h3>Revenue Trend</h3>
+                        <div class="chart-controls">
+                            <span class="legend-item">
+                                <span class="legend-color revenue-color"></span>
+                                Revenue
+                            </span>
+                        </div>
+                    </div>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+
+                <!-- Pipeline Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Sales Pipeline</h3>
+                    </div>
+                    <canvas id="pipelineChart"></canvas>
+                </div>
+
+                <!-- Performance Ring -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Performance Overview</h3>
+                    </div>
+                    <div class="performance-ring">
+                        <div class="ring-chart">
+                            <div class="ring-center">
+                                <span class="ring-percentage">68%</span>
+                                <span class="ring-label">Goal Achievement</span>
+                            </div>
+                        </div>
+                        <div class="performance-stats">
+                            <div class="stat-item">
+                                <span class="stat-color conversion"></span>
+                                <span>Conversion</span>
+                                <span class="stat-value">68.5%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-color retention"></span>
+                                <span>Retention</span>
+                                <span class="stat-value">87.7%</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-color growth"></span>
+                                <span>Growth</span>
+                                <span class="stat-value">15.3%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="activity-card">
+                    <div class="chart-header">
+                        <h3>Recent Activity</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="activity-list" id="activity-list">
+                        <!-- Activities will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/dashboard.js"></script>
+</body>
+</html>
+        
