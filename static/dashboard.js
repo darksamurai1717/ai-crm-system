@@ -1,4 +1,4 @@
-// Dashboard JavaScript - Updated with Vibrant Colors
+// Dashboard JavaScript - InnoStart Style
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardData();
     setInterval(loadDashboardData, 30000);
@@ -11,6 +11,7 @@ function loadDashboardData() {
             updateKPIs(data.kpis);
             updateCharts(data);
             updateActivities(data.recent_activities);
+            updateMLInsights(data);
         })
         .catch(error => console.error('Error loading dashboard data:', error));
 }
@@ -22,11 +23,10 @@ function updateKPIs(kpis) {
     document.getElementById('conversion-rate').textContent = (kpis.conversion_rate || 0).toFixed(1) + '%';
     document.getElementById('churn-rate').textContent = (kpis.churn_rate || 0).toFixed(1) + '%';
     document.getElementById('total-leads').textContent = kpis.total_leads || 0;
-    document.getElementById('active-deals').textContent = kpis.active_deals || 0;
 }
 
 function updateCharts(data) {
-    // Revenue Trend Chart - Cyan/Teal Gradient
+    // Revenue Trend Chart - Clean Modern Style
     const revenueCtx = document.getElementById('revenueChart');
     if (revenueCtx) {
         if (window.revenueChartInstance) {
@@ -40,13 +40,13 @@ function updateCharts(data) {
                 datasets: [{
                     label: 'Revenue',
                     data: (data.revenue_trend || []).map(d => d.revenue),
-                    borderColor: '#00D9FF',
-                    backgroundColor: 'rgba(0, 217, 255, 0.15)',
+                    borderColor: '#111827',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4,
-                    pointBackgroundColor: '#00D9FF',
-                    pointBorderColor: 'white',
+                    pointBackgroundColor: '#6366F1',
+                    pointBorderColor: '#111827',
                     pointBorderWidth: 2,
                     pointRadius: 6,
                     pointHoverRadius: 8
@@ -57,30 +57,45 @@ function updateCharts(data) {
                 maintainAspectRatio: true,
                 plugins: {
                     legend: {
-                        labels: { color: 'white', font: { size: 12, weight: 'bold' } }
+                        display: false
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            color: 'rgba(255,255,255,0.7)',
+                            color: '#6B7280',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            },
                             callback: function(value) {
                                 return '$' + (value / 1000) + 'K';
                             }
                         },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
+                        grid: {
+                            color: '#E5E7EB',
+                            drawBorder: false
+                        }
                     },
                     x: {
-                        ticks: { color: 'rgba(255,255,255,0.7)' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
+                        ticks: {
+                            color: '#6B7280',
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
                     }
                 }
             }
         });
     }
 
-    // Pipeline Chart - Vibrant Multi-color
+    // Pipeline Chart - Modern Doughnut
     const pipelineCtx = document.getElementById('pipelineChart');
     if (pipelineCtx) {
         if (window.pipelineChartInstance) {
@@ -94,14 +109,14 @@ function updateCharts(data) {
                 datasets: [{
                     data: (data.pipeline_data || []).map(d => d.count),
                     backgroundColor: [
-                        '#FF6B6B',    // Red
-                        '#4ECDC4',    // Teal
-                        '#45B7D1',    // Blue
-                        '#FFA07A',    // Salmon
-                        '#98D8C8'     // Mint
+                        '#6366F1',
+                        '#10B981',
+                        '#F59E0B',
+                        '#EF4444',
+                        '#8B5CF6'
                     ],
-                    borderColor: 'rgba(30, 27, 46, 0.9)',
-                    borderWidth: 2
+                    borderColor: '#FFFFFF',
+                    borderWidth: 3
                 }]
             },
             options: {
@@ -109,54 +124,17 @@ function updateCharts(data) {
                 maintainAspectRatio: true,
                 plugins: {
                     legend: {
-                        labels: { color: 'white', font: { size: 12, weight: 'bold' } }
-                    }
-                }
-            }
-        });
-    }
-
-    // Top Reps Bar Chart - Vibrant Green/Blue
-    const topRepsCtx = document.getElementById('topRepsChart');
-    if (topRepsCtx) {
-        if (window.topRepsChartInstance) {
-            window.topRepsChartInstance.destroy();
-        }
-
-        window.topRepsChartInstance = new Chart(topRepsCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Rep 1', 'Rep 2', 'Rep 3', 'Rep 4'],
-                datasets: [{
-                    label: 'Deals Won',
-                    data: [12, 9, 8, 6],
-                    backgroundColor: [
-                        '#00D9FF',    // Cyan
-                        '#45B7D1',    // Blue
-                        '#00C9A7',    // Teal
-                        '#FF6B9D'     // Pink
-                    ],
-                    borderColor: 'rgba(255,255,255,0.3)',
-                    borderWidth: 2,
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        labels: { color: 'white', font: { size: 12, weight: 'bold' } }
-                    }
-                },
-                scales: {
-                    y: {
-                        ticks: { color: 'rgba(255,255,255,0.7)' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
-                    },
-                    x: {
-                        ticks: { color: 'rgba(255,255,255,0.7)' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
+                        position: 'bottom',
+                        labels: {
+                            color: '#111827',
+                            font: {
+                                size: 12,
+                                weight: '700'
+                            },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
                     }
                 }
             }
@@ -169,7 +147,7 @@ function updateActivities(activities) {
     if (!container) return;
 
     if (!activities || activities.length === 0) {
-        container.innerHTML = '<p style="color: rgba(255,255,255,0.7); text-align: center; padding: 1rem;">No recent activities</p>';
+        container.innerHTML = '<p style="color: #6B7280; text-align: center; padding: 2rem; font-weight: 500;">No recent activities</p>';
         return;
     }
 
@@ -177,7 +155,12 @@ function updateActivities(activities) {
         <div class="activity-item">
             <div class="activity-type">${activity.type}</div>
             <div class="activity-description">${activity.description}</div>
-            ${activity.amount ? `<div style="color: #00D9FF; font-weight: 600; margin-top: 0.25rem;">${activity.amount}</div>` : ''}
+            ${activity.amount ? `<div style="color: #10B981; font-weight: 700; margin-top: 0.5rem; font-size: 1.1rem;">${activity.amount}</div>` : ''}
         </div>
     `).join('');
+}
+
+function updateMLInsights(data) {
+    // Additional ML insights can be updated here if needed
+    console.log('ML Insights updated');
 }

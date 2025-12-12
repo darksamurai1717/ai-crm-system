@@ -1,287 +1,243 @@
+"""
+Team Tracking System - Updated to use Real Dataset
+"""
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from datetime import datetime, timedelta
-import random
+import os
 
 
 class TeamTracker:
-    def __init__(self):
-        self.team_members = [
-            {'id': 1, 'name': 'Alice Johnson', 'role': 'Sales Rep', 'hire_date': '2024-01-15',
-             'target_monthly': 100000},
-            {'id': 2, 'name': 'Bob Wilson', 'role': 'Sales Rep', 'hire_date': '2024-02-01', 'target_monthly': 95000},
-            {'id': 3, 'name': 'Carol Davis', 'role': 'Senior Sales Rep', 'hire_date': '2023-08-10',
-             'target_monthly': 120000},
-            {'id': 4, 'name': 'David Brown', 'role': 'Sales Manager', 'hire_date': '2023-06-01',
-             'target_monthly': 80000},
-            {'id': 5, 'name': 'Eva Martinez', 'role': 'Sales Rep', 'hire_date': '2024-03-15', 'target_monthly': 90000}
-        ]
+    def __init__(self, dataset_path='data/dataset.csv'):
+        self.dataset_path = dataset_path
+        self.df = None
+        self.load_dataset()
 
-        self.team_df = pd.DataFrame(self.team_members)
+    def load_dataset(self):
+        """Load real dataset from CSV"""
+        try:
+            if os.path.exists(self.dataset_path):
+                self.df = pd.read_csv(self.dataset_path)
+                print(f"✅ Loaded dataset with {len(self.df)} records for team tracking")
+            else:
+                print(f"❌ Dataset not found at {self.dataset_path}")
+        except Exception as e:
+            print(f"Error loading dataset for team tracking: {e}")
 
-    def assign_leads_to_team(self, leads_df):
-        """Assign leads to team members"""
-        leads_with_reps = leads_df.copy()
+    def get_team_members(self):
+        """Get unique sales reps from dataset"""
+        if self.df is None or self.df.empty:
+            return []
 
-        # Simple round-robin assignment
-        team_names = self.team_df['name'].tolist()
-        leads_with_reps['assigned_rep'] = [team_names[i % len(team_names)] for i in range(len(leads_df))]
-        leads_with_reps['assigned_date'] = datetime.now().strftime('%Y-%m-%d')
+        reps = self.df['sales_rep'].unique()
+        return [rep for rep in reps if pd.notna(rep)]
 
-        print(f"Assigned {len(leads_df)} leads to {len(team_names)} team members")
-        return leads_with_reps
+    def get_rep_performance(self, rep_name):
+        """Get performance metrics for a specific sales rep"""
+        if self.df is None or self.df.empty:
+            return None
 
-    def assign_deals_to_team(self, deals_df):
-        """Assign deals to team members"""
-        deals_with_reps = deals_df.copy()
+        rep_data = self.df[self.df['sales_rep'] == rep_name]
 
-        if 'sales_rep' not in deals_with_reps.columns:
-            team_names = self.team_df['name'].tolist()
-            deals_with_reps['sales_rep'] = [random.choice(team_names) for _ in range(len(deals_df))]
+        if len(rep_data) == 0:
+            return None
 
-        return deals_with_reps
+        # Get unique rep_id and performance_score
+        rep_id = rep_data['rep_id'].iloc[0] if 'rep_id' in rep_data.columns else 'N/A'
+        performance_score = rep_data['performance_score'].iloc[0] if 'performance_score' in rep_data.columns else 0
 
-    def calculate_team_performance(self, leads_df, deals_df):
-        """Calculate performance metrics for each team member"""
-        # Assign leads and deals to team
-        leads_assigned = self.assign_leads_to_team(leads_df)
-        deals_assigned = self.assign_deals_to_team(deals_df)
+        # Calculate metrics
+        total_leads = len(rep_data)
+        converted = len(rep_data[rep_data['converted'] == 1])
+        conversion_rate = (converted / total_leads * 100) if total_leads > 0 else 0
+
+        # Revenue from converted deals
+        converted_data = rep_data[rep_data['converted'] == 1]
+        total_revenue = converted_data['deal_amount'].sum() if len(converted_data) > 0 else 0
+
+        # Get region (most common)
+        region = rep_data['region'].mode()[0] if 'region' in rep_data.columns else 'Unknown'
+
+        # Active deals (qualified or contacted, not converted or lost)
+        active_deals = len(rep_data[
+                               (rep_data['stage'].isin(['Qualified', 'Contacted'])) &
+                               (rep_data['converted'] == 0)
+                               ])
+
+        return {
+            'name': rep_name,
+            'rep_id': rep_id,
+            'region': region,
+            'total_leads': total_leads,
+            'converted': converted,
+            'conversion_rate': round(conversion_rate, 1),
+            'total_revenue': int(total_revenue),
+            'performance_score': round(float(performance_score), 1),
+            'active_deals': active_deals,
+            'avg_deal_size': int(total_revenue / converted) if converted > 0 else 0
+        }
+
+    def get_all_team_performance(self):
+        """Get performance metrics for all team members"""
+        team_members = self.get_team_members()
 
         performance_data = []
+        for rep in team_members:
+            rep_perf = self.get_rep_performance(rep)
+            if rep_perf:
+                performance_data.append(rep_perf)
 
-        for _, member in self.team_df.iterrows():
-            member_name = member['name']
+        # Sort by performance score
+        return sorted(performance_data, key=lambda x: x['performance_score'], reverse=True)
 
-            # Lead metrics
-            member_leads = leads_assigned[leads_assigned['assigned_rep'] == member_name]
-            total_leads = len(member_leads)
-            converted_leads = len(member_leads[member_leads['status'] == 'Converted'])
-            lead_conversion_rate = (converted_leads / total_leads * 100) if total_leads > 0 else 0
+    def get_team_stats(self):
+        """Get overall team statistics"""
+        if self.df is None or self.df.empty:
+            return {
+                'total_members': 0,
+                'avg_performance': 0,
+                'total_revenue': 0,
+                'avg_conversion': 0,
+                'target_achievement': 0
+            }
 
-            # Deal metrics
-            member_deals = deals_assigned[deals_assigned['sales_rep'] == member_name]
-            won_deals = member_deals[member_deals['deal_stage'] == 'Won']
-            total_revenue = won_deals['deal_value'].sum() if len(won_deals) > 0 else 0
-            deals_won = len(won_deals)
-            deals_lost = len(member_deals[member_deals['deal_stage'] == 'Lost'])
-            win_rate = (deals_won / (deals_won + deals_lost) * 100) if (deals_won + deals_lost) > 0 else 0
+        team_performance = self.get_all_team_performance()
 
-            # Calculate performance score (0-100)
-            performance_score = (
-                    (lead_conversion_rate * 0.3) +
-                    (win_rate * 0.4) +
-                    (min(total_revenue / member['target_monthly'], 1) * 100 * 0.3)
-            )
+        if len(team_performance) == 0:
+            return {
+                'total_members': 0,
+                'avg_performance': 0,
+                'total_revenue': 0,
+                'avg_conversion': 0,
+                'target_achievement': 0
+            }
 
-            performance_data.append({
-                'team_member': member_name,
-                'role': member['role'],
-                'total_leads': total_leads,
-                'converted_leads': converted_leads,
-                'lead_conversion_rate': round(lead_conversion_rate, 2),
-                'deals_won': deals_won,
-                'deals_lost': deals_lost,
-                'win_rate': round(win_rate, 2),
-                'total_revenue': round(total_revenue, 2),
-                'target_monthly': member['target_monthly'],
-                'target_achievement': round((total_revenue / member['target_monthly']) * 100, 2),
-                'performance_score': round(performance_score, 2)
+        total_revenue = sum(rep['total_revenue'] for rep in team_performance)
+        avg_performance = np.mean([rep['performance_score'] for rep in team_performance])
+        avg_conversion = np.mean([rep['conversion_rate'] for rep in team_performance])
+
+        # Calculate target achievement (assuming target is 80% conversion)
+        target_achievement = (avg_conversion / 80) * 100
+
+        return {
+            'total_members': len(team_performance),
+            'avg_performance': round(avg_performance, 1),
+            'total_revenue': int(total_revenue),
+            'avg_conversion': round(avg_conversion, 1),
+            'target_achievement': round(min(target_achievement, 100), 1)
+        }
+
+    def get_top_performers(self, limit=3):
+        """Get top performing sales reps"""
+        team_performance = self.get_all_team_performance()
+        return team_performance[:limit]
+
+    def get_region_distribution(self):
+        """Get lead distribution by region"""
+        if self.df is None or self.df.empty:
+            return {}
+
+        return self.df['region'].value_counts().to_dict()
+
+    def get_team_activities(self, limit=10):
+        """Generate recent team activities from dataset"""
+        if self.df is None or self.df.empty:
+            return []
+
+        activities = []
+
+        # Recent conversions
+        recent_conversions = self.df[self.df['converted'] == 1].sort_values(
+            'close_date', ascending=False
+        ).head(limit)
+
+        for _, row in recent_conversions.iterrows():
+            activities.append({
+                'type': 'conversion',
+                'rep': row['sales_rep'],
+                'lead': row['name'],
+                'company': row['industry'],
+                'amount': row['deal_amount'],
+                'timestamp': row['close_date']
             })
 
-        return pd.DataFrame(performance_data)
+        # Recent qualifications
+        recent_qualified = self.df[
+            (self.df['stage'] == 'Qualified') &
+            (self.df['converted'] == 0)
+            ].head(limit // 2)
 
-    def generate_team_tasks(self, leads_df, deals_df):
-        """Generate tasks for team members"""
-        tasks = []
-        task_types = ['Follow-up call', 'Send proposal', 'Demo scheduling', 'Contract review', 'Client meeting']
-        priorities = ['High', 'Medium', 'Low']
-
-        # Assign leads and deals to get rep assignments
-        leads_assigned = self.assign_leads_to_team(leads_df)
-        deals_assigned = self.assign_deals_to_team(deals_df)
-
-        # Generate tasks for each team member
-        for _, member in self.team_df.iterrows():
-            member_name = member['name']
-
-            # Tasks from leads
-            member_leads = leads_assigned[leads_assigned['assigned_rep'] == member_name]
-            for _, lead in member_leads.head(3).iterrows():  # Limit to 3 per member
-                tasks.append({
-                    'task_id': len(tasks) + 1,
-                    'assigned_to': member_name,
-                    'task_type': random.choice(task_types),
-                    'related_lead': lead['name'],
-                    'related_company': lead['company'],
-                    'priority': random.choice(priorities),
-                    'due_date': (datetime.now() + timedelta(days=random.randint(1, 7))).strftime('%Y-%m-%d'),
-                    'status': random.choice(['Pending', 'In Progress', 'Completed']),
-                    'created_date': datetime.now().strftime('%Y-%m-%d')
-                })
-
-        return pd.DataFrame(tasks)
-
-    def ai_workload_balancing(self, performance_df):
-        """AI recommendations for workload balancing"""
-        recommendations = []
-
-        # Find overperforming and underperforming team members
-        avg_performance = performance_df['performance_score'].mean()
-        high_performers = performance_df[performance_df['performance_score'] > avg_performance + 10]
-        low_performers = performance_df[performance_df['performance_score'] < avg_performance - 10]
-
-        # Workload recommendations
-        for _, performer in high_performers.iterrows():
-            if performer['total_leads'] < performance_df['total_leads'].max():
-                recommendations.append({
-                    'team_member': performer['team_member'],
-                    'recommendation_type': 'Increase Workload',
-                    'suggestion': f"Assign more leads to {performer['team_member']} - currently high performing with {performer['performance_score']:.1f} score",
-                    'priority': 'Medium'
-                })
-
-        for _, performer in low_performers.iterrows():
-            recommendations.append({
-                'team_member': performer['team_member'],
-                'recommendation_type': 'Support & Training',
-                'suggestion': f"Provide additional support to {performer['team_member']} - performance score is {performer['performance_score']:.1f}",
-                'priority': 'High'
+        for _, row in recent_qualified.iterrows():
+            activities.append({
+                'type': 'qualified',
+                'rep': row['sales_rep'],
+                'lead': row['name'],
+                'company': row['industry'],
+                'timestamp': row['last_login']
             })
 
-        # Revenue target recommendations
-        behind_target = performance_df[performance_df['target_achievement'] < 70]
-        for _, member in behind_target.iterrows():
-            recommendations.append({
-                'team_member': member['team_member'],
-                'recommendation_type': 'Revenue Focus',
-                'suggestion': f"{member['team_member']} is at {member['target_achievement']:.1f}% of target - focus on high-value deals",
-                'priority': 'High'
-            })
+        return activities[:limit]
 
-        return pd.DataFrame(recommendations)
+    def get_workload_balance(self):
+        """Analyze workload distribution across team"""
+        if self.df is None or self.df.empty:
+            return {'balanced': True, 'recommendation': 'Team workload is optimal'}
 
-    def create_team_dashboard(self, leads_df, deals_df):
-        """Create comprehensive team performance dashboard"""
-        print("\n=== TEAM PERFORMANCE DASHBOARD ===")
+        team_performance = self.get_all_team_performance()
 
-        # Calculate performance metrics
-        performance_df = self.calculate_team_performance(leads_df, deals_df)
+        if len(team_performance) == 0:
+            return {'balanced': True, 'recommendation': 'No team data available'}
 
-        print("\n--- TEAM PERFORMANCE SUMMARY ---")
-        display_cols = ['team_member', 'role', 'total_leads', 'lead_conversion_rate', 'deals_won', 'win_rate',
-                        'total_revenue', 'target_achievement', 'performance_score']
-        print(performance_df[display_cols].to_string(index=False))
+        lead_counts = [rep['total_leads'] for rep in team_performance]
+        avg_leads = np.mean(lead_counts)
+        std_leads = np.std(lead_counts)
 
-        # Team tasks
-        tasks_df = self.generate_team_tasks(leads_df, deals_df)
-        print(f"\n--- ACTIVE TASKS ({len(tasks_df)} total) ---")
-        task_summary = tasks_df.groupby(['assigned_to', 'status']).size().unstack(fill_value=0)
-        print(task_summary)
+        # Check if distribution is balanced (within 20% of mean)
+        balanced = std_leads < (avg_leads * 0.2)
 
-        # AI workload recommendations
-        recommendations_df = self.ai_workload_balancing(performance_df)
-        print(f"\n--- AI WORKLOAD RECOMMENDATIONS ({len(recommendations_df)} suggestions) ---")
-        if len(recommendations_df) > 0:
-            for _, rec in recommendations_df.iterrows():
-                print(f"• {rec['recommendation_type']} ({rec['priority']} Priority): {rec['suggestion']}")
+        if balanced:
+            recommendation = "Workload is well balanced across the team"
         else:
-            print("No specific workload balancing recommendations at this time.")
+            max_leads = max(lead_counts)
+            min_leads = min(lead_counts)
+            diff_percent = ((max_leads - min_leads) / avg_leads) * 100
+            recommendation = f"Consider redistributing {int(diff_percent)}% of leads from top to lower-loaded reps"
 
-        # Team statistics
-        print(f"\n--- TEAM STATISTICS ---")
-        print(f"Total Team Members: {len(self.team_df)}")
-        print(f"Average Performance Score: {performance_df['performance_score'].mean():.2f}")
-        print(f"Total Team Revenue: ${performance_df['total_revenue'].sum():,.2f}")
-        print(f"Team Win Rate: {performance_df['win_rate'].mean():.2f}%")
-        print(f"Team Conversion Rate: {performance_df['lead_conversion_rate'].mean():.2f}%")
+        return {
+            'balanced': balanced,
+            'avg_leads_per_rep': round(avg_leads, 1),
+            'std_deviation': round(std_leads, 1),
+            'recommendation': recommendation
+        }
 
-        return performance_df, tasks_df, recommendations_df
+    def get_performance_trends(self):
+        """Get performance trends over time"""
+        if self.df is None or self.df.empty:
+            return []
 
-    def visualize_team_performance(self, performance_df):
-        """Create team performance visualizations"""
-        try:
-            fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+        # Group by sales rep and calculate monthly metrics
+        team_members = self.get_team_members()
 
-            # 1. Performance Score by Team Member
-            axes[0, 0].bar(performance_df['team_member'], performance_df['performance_score'])
-            axes[0, 0].set_title('Performance Score by Team Member')
-            axes[0, 0].set_ylabel('Performance Score')
-            axes[0, 0].tick_params(axis='x', rotation=45)
+        trends = []
+        for rep in team_members:
+            rep_data = self.df[self.df['sales_rep'] == rep]
 
-            # 2. Revenue vs Target
-            x = range(len(performance_df))
-            width = 0.35
-            axes[0, 1].bar([i - width / 2 for i in x], performance_df['total_revenue'], width, label='Actual Revenue')
-            axes[0, 1].bar([i + width / 2 for i in x], performance_df['target_monthly'], width, label='Target Revenue')
-            axes[0, 1].set_title('Revenue vs Target by Team Member')
-            axes[0, 1].set_ylabel('Revenue ($)')
-            axes[0, 1].set_xticks(x)
-            axes[0, 1].set_xticklabels(performance_df['team_member'], rotation=45)
-            axes[0, 1].legend()
+            # Calculate recent vs historical performance
+            recent_conversion = len(rep_data[
+                                        (rep_data['converted'] == 1) &
+                                        (pd.to_datetime(rep_data['close_date'], errors='coerce') >=
+                                         pd.Timestamp.now() - pd.Timedelta(days=30))
+                                        ])
 
-            # 3. Win Rate Distribution
-            axes[1, 0].hist(performance_df['win_rate'], bins=5, edgecolor='black')
-            axes[1, 0].set_title('Win Rate Distribution')
-            axes[1, 0].set_xlabel('Win Rate (%)')
-            axes[1, 0].set_ylabel('Number of Team Members')
+            total_conversion = len(rep_data[rep_data['converted'] == 1])
 
-            # 4. Lead Conversion Rate by Member
-            axes[1, 1].bar(performance_df['team_member'], performance_df['lead_conversion_rate'])
-            axes[1, 1].set_title('Lead Conversion Rate by Team Member')
-            axes[1, 1].set_ylabel('Conversion Rate (%)')
-            axes[1, 1].tick_params(axis='x', rotation=45)
+            trend_direction = 'up' if recent_conversion > (total_conversion / 3) else 'stable'
 
-            plt.tight_layout()
-            plt.show()
+            trends.append({
+                'rep': rep,
+                'trend': trend_direction,
+                'recent_conversions': recent_conversion,
+                'total_conversions': total_conversion
+            })
 
-        except Exception as e:
-            print(f"Error creating team visualizations: {e}")
-
-    def export_team_data(self, performance_df, tasks_df, recommendations_df):
-        """Export team data to CSV files"""
-        try:
-            performance_df.to_csv('team_performance.csv', index=False)
-            tasks_df.to_csv('team_tasks.csv', index=False)
-            recommendations_df.to_csv('team_recommendations.csv', index=False)
-            print("\nTeam data exported to CSV files:")
-            print("- team_performance.csv")
-            print("- team_tasks.csv")
-            print("- team_recommendations.csv")
-        except Exception as e:
-            print(f"Error exporting team data: {e}")
-
-
-# Demo function
-def demo_team_tracking():
-    from lead_management import LeadManager
-    from sales_tracking import SalesTracker
-
-    # Load leads and generate sales data
-    lm = LeadManager()
-    leads = lm.leads_df
-
-    if len(leads) == 0:
-        print("No leads found. Please run lead_management.py first.")
-        return
-
-    # Generate deals data
-    tracker = SalesTracker()
-    deals = tracker.generate_sales_data(leads)
-
-    # Initialize team tracker
-    team_tracker = TeamTracker()
-
-    # Create team dashboard
-    performance_df, tasks_df, recommendations_df = team_tracker.create_team_dashboard(leads, deals)
-
-    # Create visualizations
-    team_tracker.visualize_team_performance(performance_df)
-
-    # Export data
-    team_tracker.export_team_data(performance_df, tasks_df, recommendations_df)
-
-
-if __name__ == "__main__":
-    demo_team_tracking()
+        return trends

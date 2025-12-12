@@ -1,191 +1,260 @@
+"""
+AI Lead Scoring System - Updated to use Real Dataset
+"""
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-import pickle
 import os
 
 
-class AILeadScorer:
-    def __init__(self, model_path='models/lead_scorer.pkl'):
-        self.model_path = model_path
+class LeadScorer:
+    def __init__(self, dataset_path='data/dataset.csv'):
+        self.dataset_path = dataset_path
         self.model = None
+        self.df = None
         self.label_encoders = {}
-        self.is_trained = False
+        self.load_and_train()
 
-    def prepare_features(self, df):
-        """Prepare features for ML model"""
-        feature_df = df.copy()
-
-        # Create engagement score based on interactions
-        feature_df['days_since_created'] = pd.to_datetime('today') - pd.to_datetime(df['created_date'])
-        feature_df['days_since_created'] = feature_df['days_since_created'].dt.days
-
-        # Encode categorical variables
-        categorical_cols = ['company', 'status']
-        for col in categorical_cols:
-            if col in feature_df.columns:
-                if col not in self.label_encoders:
-                    self.label_encoders[col] = LabelEncoder()
-                    feature_df[col + '_encoded'] = self.label_encoders[col].fit_transform(feature_df[col].astype(str))
-                else:
-                    feature_df[col + '_encoded'] = self.label_encoders[col].transform(feature_df[col].astype(str))
-
-        # Select numerical features
-        feature_cols = ['days_since_created', 'company_encoded']
-        available_cols = [col for col in feature_cols if col in feature_df.columns]
-
-        return feature_df[available_cols]
-
-    def generate_training_data(self, leads_df):
-        """Generate synthetic training data for demo purposes"""
-        training_data = leads_df.copy()
-
-        # Create synthetic conversion labels based on status
-        training_data['converted'] = (training_data['status'] == 'Converted').astype(int)
-
-        # Add some synthetic features for better ML performance
-        np.random.seed(42)
-        training_data['email_opens'] = np.random.randint(0, 20, len(training_data))
-        training_data['website_visits'] = np.random.randint(0, 50, len(training_data))
-        training_data['demo_requested'] = np.random.choice([0, 1], len(training_data), p=[0.7, 0.3])
-
-        return training_data
-
-    def train_model(self, leads_df):
-        """Train the lead scoring model"""
+    def load_and_train(self):
+        """Load dataset and train lead scoring model"""
         try:
-            # Generate training data
-            training_data = self.generate_training_data(leads_df)
+            if os.path.exists(self.dataset_path):
+                self.df = pd.read_csv(self.dataset_path)
+                print(f"✅ Loaded dataset with {len(self.df)} records for lead scoring")
 
-            if len(training_data) < 5:
-                print("Not enough data to train model. Need at least 5 leads.")
-                return False
+                if len(self.df) > 20:
+                    self._train_model()
+                else:
+                    print("⚠️ Not enough data to train lead scoring model")
+            else:
+                print(f"❌ Dataset not found at {self.dataset_path}")
+        except Exception as e:
+            print(f"Error loading dataset for lead scoring: {e}")
+
+    def _train_model(self):
+        """Train Random Forest model for lead scoring"""
+        try:
+            df = self.df.copy()
 
             # Prepare features
-            X = self.prepare_features(training_data)
+            df['revenue_potential'] = df['revenue_potential'].fillna(0)
+            df['days_to_convert'] = df['days_to_convert'].fillna(30)
 
-            # Add synthetic features to X
-            X['email_opens'] = training_data['email_opens']
-            X['website_visits'] = training_data['website_visits']
-            X['demo_requested'] = training_data['demo_requested']
+            # Encode categorical variables
+            categorical_cols = ['source', 'industry', 'region', 'stage']
 
-            y = training_data['converted']
+            for col in categorical_cols:
+                if col in df.columns:
+                    le = LabelEncoder()
+                    df[col + '_encoded'] = le.fit_transform(df[col].astype(str))
+                    self.label_encoders[col] = le
+
+            # Select features
+            feature_cols = [
+                'revenue_potential',
+                'days_to_convert',
+                'source_encoded',
+                'industry_encoded',
+                'region_encoded',
+                'stage_encoded'
+            ]
+
+            # Filter available features
+            available_features = [col for col in feature_cols if col in df.columns]
+
+            X = df[available_features]
+            y = df['converted']
 
             # Train model
-            self.model = RandomForestClassifier(n_estimators=100, random_state=42)
-            self.model.fit(X, y)
+            if len(X) > 10:
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X, y, test_size=0.2, random_state=42
+                )
 
-            # Save model
-            os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
-            with open(self.model_path, 'wb') as f:
-                pickle.dump({'model': self.model, 'encoders': self.label_encoders}, f)
+                self.model = RandomForestClassifier(
+                    n_estimators=100,
+                    random_state=42,
+                    max_depth=10
+                )
+                self.model.fit(X_train, y_train)
 
-            self.is_trained = True
-            print("Lead scoring model trained successfully!")
-            return True
-
+                accuracy = self.model.score(X_test, y_test)
+                print(f"✅ Lead scoring model trained with {accuracy * 100:.1f}% accuracy")
         except Exception as e:
-            print(f"Error training model: {e}")
-            return False
+            print(f"Error training lead scoring model: {e}")
 
-    def load_model(self):
-        """Load trained model"""
-        try:
-            if os.path.exists(self.model_path):
-                with open(self.model_path, 'rb') as f:
-                    saved_data = pickle.load(f)
-                    self.model = saved_data['model']
-                    self.label_encoders = saved_data['encoders']
-                    self.is_trained = True
-                print("Model loaded successfully!")
-                return True
-        except Exception as e:
-            print(f"Error loading model: {e}")
-        return False
-
-    def score_leads(self, leads_df):
-        """Score leads using trained model"""
-        if not self.is_trained:
-            if not self.load_model():
-                print("No trained model available. Training new model...")
-                if not self.train_model(leads_df):
-                    return leads_df
+    def calculate_score(self, lead_data):
+        """Calculate lead score (0-100)"""
+        if self.model is None:
+            # Use rule-based fallback scoring
+            return self._rule_based_score(lead_data)
 
         try:
-            # Prepare features for prediction
-            X = self.prepare_features(leads_df)
+            # Prepare features
+            features = {}
+            features['revenue_potential'] = lead_data.get('revenue_potential', 0)
+            features['days_to_convert'] = lead_data.get('days_to_convert', 30)
 
-            # Add synthetic features for prediction (in real scenario, these would be real data)
-            np.random.seed(42)
-            X['email_opens'] = np.random.randint(0, 20, len(leads_df))
-            X['website_visits'] = np.random.randint(0, 50, len(leads_df))
-            X['demo_requested'] = np.random.choice([0, 1], len(leads_df), p=[0.7, 0.3])
+            # Encode categorical features
+            for col in ['source', 'industry', 'region', 'stage']:
+                if col in self.label_encoders:
+                    value = lead_data.get(col, 'Unknown')
+                    try:
+                        features[col + '_encoded'] = self.label_encoders[col].transform([value])[0]
+                    except:
+                        features[col + '_encoded'] = 0
 
-            # Get probability predictions
-            probabilities = self.model.predict_proba(X)[:, 1]  # Probability of conversion
+            # Create feature array
+            feature_array = [[
+                features.get('revenue_potential', 0),
+                features.get('days_to_convert', 30),
+                features.get('source_encoded', 0),
+                features.get('industry_encoded', 0),
+                features.get('region_encoded', 0),
+                features.get('stage_encoded', 0)
+            ]]
 
-            # Update leads dataframe with scores
-            scored_leads = leads_df.copy()
-            scored_leads['ai_score'] = (probabilities * 100).round(2)
+            # Predict probability
+            probability = self.model.predict_proba(feature_array)[0][1]
+            score = int(probability * 100)
 
-            # Assign categories
-            scored_leads['lead_category'] = scored_leads['ai_score'].apply(self.categorize_lead)
-
-            print("Leads scored successfully!")
-            return scored_leads
-
+            return min(max(score, 0), 100)
         except Exception as e:
-            print(f"Error scoring leads: {e}")
-            # Return original dataframe with default scores
-            fallback_leads = leads_df.copy()
-            fallback_leads['ai_score'] = np.random.uniform(20, 80, len(leads_df)).round(2)
-            fallback_leads['lead_category'] = fallback_leads['ai_score'].apply(self.categorize_lead)
-            return fallback_leads
+            print(f"Error calculating ML score: {e}")
+            return self._rule_based_score(lead_data)
 
-    def categorize_lead(self, score):
-        """Categorize lead based on score"""
-        if score >= 70:
-            return "Hot"
-        elif score >= 40:
-            return "Warm"
-        else:
-            return "Cold"
+    def _rule_based_score(self, lead_data):
+        """Fallback rule-based scoring"""
+        score = 50  # Base score
+
+        # Revenue potential impact
+        revenue = lead_data.get('revenue_potential', 0)
+        if revenue > 60000:
+            score += 25
+        elif revenue > 45000:
+            score += 15
+        elif revenue > 30000:
+            score += 10
+
+        # Stage impact
+        stage = lead_data.get('stage', '')
+        if stage == 'Qualified':
+            score += 20
+        elif stage == 'Contacted':
+            score += 10
+        elif stage == 'Converted':
+            score = 100
+
+        # Source impact
+        source = lead_data.get('source', '')
+        if source == 'Referral':
+            score += 10
+        elif source == 'LinkedIn':
+            score += 5
+
+        # Industry impact (high-value industries)
+        industry = lead_data.get('industry', '')
+        if industry in ['IT', 'Finance', 'Healthcare']:
+            score += 5
+
+        return min(max(score, 0), 100)
+
+    def get_hot_leads(self, threshold=70):
+        """Get leads with score above threshold"""
+        if self.df is None or self.df.empty:
+            return []
+
+        hot_leads = []
+
+        for _, row in self.df.iterrows():
+            if row['converted'] == 0:  # Only unconverted leads
+                lead_data = {
+                    'revenue_potential': row['revenue_potential'],
+                    'days_to_convert': row.get('days_to_convert', 30),
+                    'source': row['source'],
+                    'industry': row['industry'],
+                    'region': row['region'],
+                    'stage': row['stage']
+                }
+
+                score = self.calculate_score(lead_data)
+
+                if score >= threshold:
+                    hot_leads.append({
+                        'id': row['lead_id'],
+                        'name': row['name'],
+                        'company': row['industry'],
+                        'score': score,
+                        'revenue_potential': row['revenue_potential']
+                    })
+
+        return sorted(hot_leads, key=lambda x: x['score'], reverse=True)
+
+    def get_hot_leads_count(self, threshold=70):
+        """Get count of hot leads"""
+        return len(self.get_hot_leads(threshold))
+
+    def score_all_leads(self):
+        """Score all leads in the dataset"""
+        if self.df is None or self.df.empty:
+            return []
+
+        scored_leads = []
+
+        for _, row in self.df.iterrows():
+            lead_data = {
+                'revenue_potential': row['revenue_potential'],
+                'days_to_convert': row.get('days_to_convert', 30),
+                'source': row['source'],
+                'industry': row['industry'],
+                'region': row['region'],
+                'stage': row['stage']
+            }
+
+            score = self.calculate_score(lead_data)
+
+            scored_leads.append({
+                'lead_id': row['lead_id'],
+                'name': row['name'],
+                'email': row['email'],
+                'company': row['industry'],
+                'score': score,
+                'revenue_potential': row['revenue_potential'],
+                'stage': row['stage'],
+                'converted': row['converted'] == 1
+            })
+
+        return sorted(scored_leads, key=lambda x: x['score'], reverse=True)
+
+    def get_score_distribution(self):
+        """Get distribution of lead scores"""
+        if self.df is None or self.df.empty:
+            return {'Hot (70-100)': 0, 'Warm (40-69)': 0, 'Cold (0-39)': 0}
+
+        all_scores = []
+        for _, row in self.df.iterrows():
+            if row['converted'] == 0:  # Only unconverted leads
+                lead_data = {
+                    'revenue_potential': row['revenue_potential'],
+                    'days_to_convert': row.get('days_to_convert', 30),
+                    'source': row['source'],
+                    'industry': row['industry'],
+                    'region': row['region'],
+                    'stage': row['stage']
+                }
+                score = self.calculate_score(lead_data)
+                all_scores.append(score)
+
+        hot = sum(1 for s in all_scores if s >= 70)
+        warm = sum(1 for s in all_scores if 40 <= s < 70)
+        cold = sum(1 for s in all_scores if s < 40)
+
+        return {
+            'Hot (70-100)': hot,
+            'Warm (40-69)': warm,
+            'Cold (0-39)': cold
+        }
 
 
-# Demo function
-# Demo function - CORRECTED VERSION
-def demo_ai_scoring():
-    from lead_management import LeadManager
-
-    # Load leads
-    lm = LeadManager()
-    leads = lm.leads_df
-
-    if len(leads) == 0:
-        print("No leads found. Please run lead_management.py first.")
-        return
-
-    # Score leads
-    scorer = AILeadScorer()
-    scored_leads = scorer.score_leads(leads)
-
-    print("\n--- AI SCORED LEADS ---")
-    # Only display columns that exist
-    available_columns = []
-    desired_columns = ['name', 'company', 'status', 'ai_score', 'lead_category']
-
-    for col in desired_columns:
-        if col in scored_leads.columns:
-            available_columns.append(col)
-
-    if available_columns:
-        print(scored_leads[available_columns].to_string(index=False))
-    else:
-        print("Columns not available. Showing all data:")
-        print(scored_leads.to_string(index=False))
-
-
-if __name__ == "__main__":
-    demo_ai_scoring()

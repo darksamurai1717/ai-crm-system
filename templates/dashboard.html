@@ -3,69 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - CRM Pro</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>InnoStart CRM - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
         <!-- SIDEBAR -->
-        <div class="sidebar">
+        <aside class="sidebar">
             <div class="logo">
-                <h2><i class="fas fa-chart-line"></i> CRM Pro</h2>
+                <h2>INNOSTART</h2>
             </div>
             <nav class="nav-menu">
                 <a href="/" class="nav-item active">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
                 </a>
                 <a href="/team" class="nav-item">
-                    <i class="fas fa-users"></i> Team
+                    <i class="fas fa-users"></i>
+                    <span>Team</span>
                 </a>
                 <a href="/analytics" class="nav-item">
-                    <i class="fas fa-chart-pie"></i> Analytics
+                    <i class="fas fa-brain"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="/logout" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
                 </a>
             </nav>
-        </div>
+        </aside>
 
         <!-- MAIN CONTENT -->
-        <div class="main-content">
+        <main class="main-content">
             <!-- HEADER -->
             <header class="header">
                 <div class="header-left">
-                    <h1>Dashboard</h1>
-                    <div class="breadcrumb">
-                        <span>Home</span> / <span class="active">Dashboard Overview</span>
-                    </div>
+                    <h1>CREATE<br>MOMENTUM</h1>
+                    <div class="breadcrumb">Dashboard / <span class="active">Overview</span></div>
                 </div>
                 <div class="header-right">
+                    <i class="fas fa-bell notification-bell"></i>
                     <div class="user-profile">
-                        <i class="fas fa-bell notification-bell"></i>
-                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM4QjVDRjYiLz48dGV4dCB4PSIyMCIgeT0iMjUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIiBmb250LXNpemU9IjE0Ij5BRDwvdGV4dD48L3N2Zz4=" alt="User" class="profile-pic">
-                        <span>Admin</span>
+                        <img src="https://i.pravatar.cc/36?img=1" class="profile-pic" alt="User">
+                        <span>{{ current_user.username if current_user.is_authenticated else 'User' }}</span>
                     </div>
                 </div>
             </header>
 
-            <!-- KPI CARDS -->
+            <!-- KPI GRID -->
             <div class="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-content">
-                        <div class="kpi-icon revenue">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
+                        <div class="kpi-icon">💰</div>
                         <div class="kpi-details">
                             <h3 id="total-revenue">$0</h3>
                             <p>Total Revenue</p>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="kpi-card">
                     <div class="kpi-content">
-                        <div class="kpi-icon conversion">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
+                        <div class="kpi-icon">📈</div>
                         <div class="kpi-details">
                             <h3 id="conversion-rate">0%</h3>
                             <p>Conversion Rate</p>
@@ -75,9 +79,7 @@
 
                 <div class="kpi-card">
                     <div class="kpi-content">
-                        <div class="kpi-icon deals">
-                            <i class="fas fa-heart-broken"></i>
-                        </div>
+                        <div class="kpi-icon">⚠️</div>
                         <div class="kpi-details">
                             <h3 id="churn-rate">0%</h3>
                             <p>Churn Rate</p>
@@ -87,9 +89,7 @@
 
                 <div class="kpi-card">
                     <div class="kpi-content">
-                        <div class="kpi-icon leads">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
+                        <div class="kpi-icon">👥</div>
                         <div class="kpi-details">
                             <h3 id="total-leads">0</h3>
                             <p>Total Leads</p>
@@ -98,73 +98,97 @@
                 </div>
             </div>
 
-            <!-- CHARTS SECTION -->
-            <div class="charts-grid">
-                <!-- Revenue Chart -->
-                <div class="chart-card large">
-                    <div class="chart-header">
-                        <h3>Revenue Trend (6 Months)</h3>
-                        <div class="card-controls">
-                            <button class="control-btn"><i class="fas fa-filter"></i></button>
-                            <button class="control-btn"><i class="fas fa-download"></i></button>
-                        </div>
-                    </div>
-                    <canvas id="revenueChart" height="80"></canvas>
-                </div>
+            <!-- SECTION TITLE -->
+            <h2 class="section-title">Performance Overview</h2>
 
-                <!-- Pipeline Chart -->
-                <div class="chart-card">
+            <!-- REVENUE CHART -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3>Revenue Trend</h3>
+                    <button><i class="fas fa-download"></i> Export</button>
+                </div>
+                <canvas id="revenueChart" height="80"></canvas>
+            </div>
+
+            <!-- PIPELINE & ACTIVITIES -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 0 3rem 3rem;">
+                <!-- Pipeline Funnel -->
+                <div class="chart-card" style="margin: 0; background: var(--mint);">
                     <div class="chart-header">
                         <h3>Sales Pipeline</h3>
                     </div>
-                    <canvas id="pipelineChart" height="80"></canvas>
+                    <canvas id="pipelineChart"></canvas>
                 </div>
 
                 <!-- Recent Activities -->
-                <div class="chart-card">
+                <div class="chart-card" style="margin: 0; background: var(--peach);">
                     <div class="chart-header">
                         <h3>Recent Activities</h3>
                     </div>
-                    <div class="activity-list">
-                        <div id="activities-container">
-                            <p style="color: rgba(255,255,255,0.7); text-align: center; padding: 1rem;">Loading...</p>
-                        </div>
+                    <div id="activities-container" style="max-height: 350px; overflow-y: auto;">
+                        <div style="padding: 2rem; text-align: center; color: var(--text-muted);">Loading activities...</div>
                     </div>
                 </div>
             </div>
 
-            <!-- BOTTOM ROW - TWO CHARTS -->
-            <div class="charts-grid" style="margin-top: 1.5rem;">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>Top Sales Reps</h3>
+            <!-- SECTION DIVIDER -->
+            <div class="section-divider"></div>
+
+            <!-- ML INSIGHTS -->
+            <h2 class="section-title">AI Insights</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card" style="background: var(--sky);">
+                    <div class="feature-icon">🎯</div>
+                    <div class="feature-title">Lead Scoring</div>
+                    <div class="feature-description">
+                        AI model identifies high-potential leads with 85-90% accuracy. Prioritize contacts scoring above 70.
                     </div>
-                    <canvas id="topRepsChart" height="80"></canvas>
+                    <div style="margin-top: 1.5rem;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif;" id="hot-leads-count">0</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">Hot Leads</div>
+                    </div>
                 </div>
 
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h3>Quick Stats</h3>
+                <div class="feature-card" style="background: var(--lavender);">
+                    <div class="feature-icon">⚠️</div>
+                    <div class="feature-title">Churn Prediction</div>
+                    <div class="feature-description">
+                        Identifies at-risk customers with 75-85% recall rate. Take action on high-risk segments.
                     </div>
-                    <div style="padding: 1rem; color: white;">
-                        <div style="display: flex; justify-content: space-between; margin: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem;">
-                            <span>Active Deals:</span>
-                            <strong id="active-deals">0</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem;">
-                            <span>New Leads (Today):</span>
-                            <strong style="color: #43e97b;">0</strong>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin: 0.75rem 0;">
-                            <span>Tasks Pending:</span>
-                            <strong style="color: #f59e0b;">0</strong>
-                        </div>
+                    <div style="margin-top: 1.5rem;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif;" id="at-risk-count">0</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">At Risk Customers</div>
+                    </div>
+                </div>
+
+                <div class="feature-card" style="background: var(--mint);">
+                    <div class="feature-icon">👥</div>
+                    <div class="feature-title">Segmentation</div>
+                    <div class="feature-description">
+                        K-Means clustering reveals distinct customer segments for targeted engagement.
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif;" id="segment-count">3</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">Active Segments</div>
+                    </div>
+                </div>
+
+                <div class="feature-card" style="background: var(--peach);">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Revenue Forecast</div>
+                    <div class="feature-description">
+                        ML model predicts Q4 revenue with 85%+ accuracy for budget planning.
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--text-primary); font-family: 'Space Grotesk', sans-serif;" id="forecast-revenue">$0</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">Projected Revenue</div>
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <script src="/static/dashboard.js"></script>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
 </body>
 </html>

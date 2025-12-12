@@ -1,4 +1,4 @@
-// Analytics Dashboard JavaScript - Fixed Version with Vibrant Colors
+// Analytics Dashboard JavaScript - InnoStart Style
 document.addEventListener('DOMContentLoaded', function() {
     loadAnalyticsData();
     setInterval(loadAnalyticsData, 30000);
@@ -28,7 +28,7 @@ function updateAnalyticsKPIs(kpis) {
 }
 
 function updateAnalyticsCharts(data) {
-    // Revenue Trend - Cyan/Teal
+    // Revenue Trend Chart
     const revenueCtx = document.getElementById('analyticsRevenueChart');
     if (revenueCtx) {
         if (window.analyticsRevenueChartInstance) {
@@ -42,13 +42,13 @@ function updateAnalyticsCharts(data) {
                 datasets: [{
                     label: 'Revenue',
                     data: (data.revenue_trend || []).map(d => d.revenue),
-                    borderColor: '#00D9FF',
-                    backgroundColor: 'rgba(0, 217, 255, 0.15)',
+                    borderColor: '#111827',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4,
-                    pointBackgroundColor: '#00D9FF',
-                    pointBorderColor: 'white',
+                    pointBackgroundColor: '#8B5CF6',
+                    pointBorderColor: '#111827',
                     pointBorderWidth: 2,
                     pointRadius: 6
                 }]
@@ -57,27 +57,28 @@ function updateAnalyticsCharts(data) {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: { labels: { color: 'white', font: { size: 12, weight: 'bold' } } }
+                    legend: { display: false }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            color: 'rgba(255,255,255,0.7)',
+                            color: '#6B7280',
+                            font: { size: 12, weight: '600' },
                             callback: function(value) { return '$' + (value / 1000) + 'K'; }
                         },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
+                        grid: { color: '#E5E7EB', drawBorder: false }
                     },
                     x: {
-                        ticks: { color: 'rgba(255,255,255,0.7)' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
+                        ticks: { color: '#6B7280', font: { size: 12, weight: '600' } },
+                        grid: { display: false }
                     }
                 }
             }
         });
     }
 
-    // Pipeline Distribution - Multi-color
+    // Pipeline Distribution
     const pipelineCtx = document.getElementById('analyticsPipelineChart');
     if (pipelineCtx) {
         if (window.analyticsPipelineChartInstance) {
@@ -90,20 +91,30 @@ function updateAnalyticsCharts(data) {
                 labels: (data.pipeline || []).map(d => d.stage),
                 datasets: [{
                     data: (data.pipeline || []).map(d => d.count),
-                    backgroundColor: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8'],
-                    borderColor: 'rgba(30, 27, 46, 0.9)',
-                    borderWidth: 2
+                    backgroundColor: ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'],
+                    borderColor: '#FFFFFF',
+                    borderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
-                plugins: { legend: { labels: { color: 'white', font: { size: 12, weight: 'bold' } } } }
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#111827',
+                            font: { size: 12, weight: '700' },
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    }
+                }
             }
         });
     }
 
-    // Segment Distribution - Pie Chart
+    // Segment Distribution
     const segmentCtx = document.getElementById('segmentChart');
     if (segmentCtx) {
         if (window.segmentChartInstance) {
@@ -117,15 +128,25 @@ function updateAnalyticsCharts(data) {
                 labels: Object.keys(segmentData),
                 datasets: [{
                     data: Object.values(segmentData),
-                    backgroundColor: ['#00D9FF', '#45B7D1', '#4ECDC4', '#FF6B9D'],
-                    borderColor: 'rgba(30, 27, 46, 0.9)',
-                    borderWidth: 2
+                    backgroundColor: ['#6366F1', '#10B981', '#F59E0B', '#EF4444'],
+                    borderColor: '#FFFFFF',
+                    borderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
-                plugins: { legend: { labels: { color: 'white', font: { size: 12, weight: 'bold' } } } }
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#111827',
+                            font: { size: 12, weight: '700' },
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    }
+                }
             }
         });
     }
@@ -144,8 +165,8 @@ function updateAnalyticsCharts(data) {
                 datasets: [{
                     label: 'Customers',
                     data: data.churn_risk || [0, 0, 0],
-                    backgroundColor: ['#00C9A7', '#FFA07A', '#FF6B6B'],
-                    borderColor: 'rgba(255,255,255,0.3)',
+                    backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+                    borderColor: '#FFFFFF',
                     borderWidth: 2,
                     borderRadius: 8
                 }]
@@ -154,15 +175,17 @@ function updateAnalyticsCharts(data) {
                 responsive: true,
                 maintainAspectRatio: true,
                 indexAxis: 'y',
-                plugins: { legend: { labels: { color: 'white', font: { size: 12, weight: 'bold' } } } },
+                plugins: {
+                    legend: { display: false }
+                },
                 scales: {
                     x: {
-                        ticks: { color: 'rgba(255,255,255,0.7)' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
+                        ticks: { color: '#6B7280', font: { size: 12, weight: '600' } },
+                        grid: { color: '#E5E7EB', drawBorder: false }
                     },
                     y: {
-                        ticks: { color: 'rgba(255,255,255,0.7)' },
-                        grid: { color: 'rgba(255,255,255,0.1)' }
+                        ticks: { color: '#6B7280', font: { size: 12, weight: '700' } },
+                        grid: { display: false }
                     }
                 }
             }

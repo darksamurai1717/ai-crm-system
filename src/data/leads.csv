@@ -1,5 +1,0 @@
-id,name,email,phone,company,status,created_date,last_contact,notes,ai_score,lead_category,segment_name,score
-1,John Doe,john@example.com,123-456-7890,Tech Corp,Qualified,2025-10-14,2025-10-14,Interested in product demo,0.0,,,
-2,Jane Smith,jane@example.com,098-765-4321,Sales Inc,New,2025-10-14,,,0.0,,,
-3,John Doe,john@example.com,123-456-7890,Tech Corp,New,2025-10-14,,,,,,0.0
-4,Jane Smith,jane@example.com,098-765-4321,Sales Inc,New,2025-10-14,,,,,,0.0

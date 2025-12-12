@@ -16,71 +16,117 @@ class SalesTracker:
         self.scaler = StandardScaler()
         self.is_trained = False
 
+    def load_real_deals_from_dataset(self, df):
+        """Load real deals from your dataset"""
+        try:
+            deals_data = []
+            for idx, row in df.iterrows():
+                deals_data.append({
+                    'deal_name': f"Deal - {row['name']}",
+                    'deal_value': float(row['deal_amount']) if row['deal_amount'] > 0 else 0,
+                    'deal_stage': row['status'],
+                    'close_date': row['close_date'],
+                    'sales_rep': row['sales_rep'],
+                    'customer': row['name']
+                })
+
+            self.deals_df = pd.DataFrame(deals_data)
+            print(f"✅ Loaded {len(self.deals_df)} real deals from dataset!")
+
+        except Exception as e:
+            print(f"❌ Error loading deals: {e}")
+
     def generate_sales_data(self, leads_df):
-        """Generate synthetic sales/deals data from leads"""
-        import random
-        from datetime import datetime, timedelta
+        """Load real sales/deals data from dataset"""
+        try:
+            if leads_df is None or len(leads_df) == 0:
+                print("❌ No leads to generate deals from")
+                return pd.DataFrame()
 
-        deals = []
-
-        for idx, lead in leads_df.iterrows():
-            # Create 0-2 deals per lead
-            num_deals = random.randint(0, 2)
-
-            for deal_num in range(num_deals):
+            deals = []
+            for idx, lead in leads_df.iterrows():
+                # Use real deal data from dataset
                 deal = {
-                    'deal_id': f"DEAL-{idx}-{deal_num}",
-                    'deal_name': f"{lead['company']} - {['Product Sale', 'Service Contract', 'Consulting'][deal_num % 3]}",
-                    # FIXED: Added deal_name
-                    'lead_name': lead['name'],
-                    'company': lead['company'],
-                    'deal_value': random.randint(5000, 150000),
-                    'deal_stage': random.choice(
-                        ['Prospecting', 'Qualification', 'Proposal', 'Negotiation', 'Won', 'Lost']),
-                    'probability': random.randint(10, 90),
-                    'expected_close_date': (datetime.now() + timedelta(days=random.randint(-30, 90))).strftime(
-                        '%Y-%m-%d'),
-                    'created_date': lead['created_date'],
-                    'sales_rep': random.choice(
-                        ['Alice Johnson', 'Bob Wilson', 'Carol Davis', 'David Brown', 'Eva Martinez'])
+                    'deal_id': f"DEAL-{idx}",
+                    'deal_name': f"{lead.get('name', 'Unknown')} - Deal",
+                    'lead_name': lead.get('name', 'Unknown'),
+                    'company': lead.get('company', ''),
+                    'deal_value': float(lead.get('deal_amount', 0)) if lead.get('deal_amount') else 0,
+                    'deal_stage': lead.get('status', 'New'),
+                    'probability': float(lead.get('revenue_potential', 50)) if lead.get('revenue_potential') else 50,
+                    'expected_close_date': str(lead.get('close_date', '2025-12-31')),
+                    'created_date': str(lead.get('created_date', '2025-01-01')),
+                    'sales_rep': lead.get('sales_rep', 'Unassigned')
                 }
                 deals.append(deal)
 
-        # Ensure at least some sample deals exist
-        if len(deals) == 0:
-            for i in range(10):
-                deals.append({
-                    'deal_id': f"SAMPLE-DEAL-{i}",
-                    'deal_name': f"Sample Deal {i + 1} - {'Product Sale' if i % 2 == 0 else 'Service Contract'}",
-                    # FIXED
-                    'lead_name': f"Sample Lead {i}",
-                    'company': f"Company {i}",
-                    'deal_value': random.randint(10000, 100000),
-                    'deal_stage': random.choice(['Won', 'Negotiation', 'Proposal']),
-                    'probability': random.randint(50, 95),
-                    'expected_close_date': (datetime.now() + timedelta(days=random.randint(0, 60))).strftime(
-                        '%Y-%m-%d'),
-                    'created_date': datetime.now().strftime('%Y-%m-%d'),
-                    'sales_rep': random.choice(['Alice Johnson', 'Bob Wilson', 'Carol Davis'])
-                })
+            deals_df = pd.DataFrame(deals)
+            print(f"✅ Generated {len(deals_df)} real deals from dataset")
+            return deals_df
 
-        deals_df = pd.DataFrame(deals)
-
-        # Save to CSV
-        deals_df.to_csv('sales_deals.csv', index=False)
-        print(f"\n✅ Generated {len(deals_df)} sales deals")
-
-        return deals_df
+        except Exception as e:
+            print(f"❌ Error generating deals: {e}")
+            return pd.DataFrame()
 
     def calculate_sales_metrics(self, deals_df):
-        """Calculate key sales metrics"""
-        # Convert close_date to datetime if it's not already
-        deals_df['close_date'] = pd.to_datetime(deals_df['close_date'])
+        """Calculate key sales metrics from real data"""
+        try:
+            if deals_df is None or len(deals_df) == 0:
+                return {
+                    'total_revenue': 0,
+                    'total_deals_won': 0,
+                    'total_deals_lost': 0,
+                    'win_rate': 0,
+                    'avg_deal_size': 0,
+                    'monthly_revenue': pd.DataFrame()
+                }
 
-        # Won deals only
-        won_deals = deals_df[deals_df['deal_stage'] == 'Won'].copy()
+            # Convert close_date to datetime
+            deals_df['expected_close_date'] = pd.to_datetime(deals_df['expected_close_date'], errors='coerce')
 
-        if len(won_deals) == 0:
+            # Won deals = where deal_stage is 'Won' or 'Converted'
+            won_deals = deals_df[deals_df['deal_stage'].isin(['Won', 'Converted'])].copy()
+
+            if len(won_deals) == 0:
+                return {
+                    'total_revenue': deals_df['deal_value'].sum(),
+                    'total_deals_won': 0,
+                    'total_deals_lost': len(deals_df[deals_df['deal_stage'] == 'Lost']),
+                    'win_rate': 0,
+                    'avg_deal_size': deals_df['deal_value'].mean(),
+                    'monthly_revenue': pd.DataFrame()
+                }
+
+            # Calculate metrics
+            total_revenue = won_deals['deal_value'].sum()
+            total_deals_won = len(won_deals)
+            total_deals_lost = len(deals_df[deals_df['deal_stage'] == 'Lost'])
+
+            # Win rate calculation
+            closable_deals = len(deals_df[deals_df['deal_stage'].isin(['Won', 'Lost'])])
+            win_rate = (total_deals_won / closable_deals * 100) if closable_deals > 0 else 0
+
+            avg_deal_size = won_deals['deal_value'].mean()
+
+            # Monthly revenue
+            won_deals['month'] = won_deals['expected_close_date'].dt.to_period('M')
+            monthly_revenue = won_deals.groupby('month').agg({
+                'deal_value': ['sum', 'count'],
+                'sales_rep': 'nunique'
+            }).round(2)
+            monthly_revenue.columns = ['Revenue', 'Deals_Count', 'Active_Reps']
+
+            return {
+                'total_revenue': total_revenue,
+                'total_deals_won': total_deals_won,
+                'total_deals_lost': total_deals_lost,
+                'win_rate': win_rate,
+                'avg_deal_size': avg_deal_size,
+                'monthly_revenue': monthly_revenue
+            }
+
+        except Exception as e:
+            print(f"❌ Error calculating metrics: {e}")
             return {
                 'total_revenue': 0,
                 'total_deals_won': 0,
@@ -89,26 +135,6 @@ class SalesTracker:
                 'avg_deal_size': 0,
                 'monthly_revenue': pd.DataFrame()
             }
-
-        metrics = {
-            'total_revenue': won_deals['deal_value'].sum(),
-            'total_deals_won': len(won_deals),
-            'total_deals_lost': len(deals_df[deals_df['deal_stage'] == 'Lost']),
-            'win_rate': len(won_deals) / len(deals_df[deals_df['deal_stage'].isin(['Won', 'Lost'])]) * 100,
-            'avg_deal_size': won_deals['deal_value'].mean(),
-        }
-
-        # Monthly revenue calculation
-        won_deals['month'] = won_deals['close_date'].dt.to_period('M')
-        monthly_revenue = won_deals.groupby('month').agg({
-            'deal_value': ['sum', 'count'],
-            'sales_rep': 'nunique'
-        }).round(2)
-        monthly_revenue.columns = ['Revenue', 'Deals_Count', 'Active_Reps']
-
-        metrics['monthly_revenue'] = monthly_revenue
-
-        return metrics
 
     def analyze_sales_funnel(self, leads_df):
         """Analyze the sales funnel conversion rates"""
@@ -306,24 +332,35 @@ class SalesTracker:
 
 # Demo function
 def demo_sales_tracking():
+    """Demo using real dataset"""
     from lead_management import LeadManager
 
     # Load leads
     lm = LeadManager()
     leads = lm.leads_df
 
-    if len(leads) == 0:
-        print("No leads found. Please run lead_management.py first.")
+    if leads is None or len(leads) == 0:
+        print("❌ No leads found in dataset")
         return
+
+    print(f"📊 Loaded {len(leads)} leads from dataset")
 
     # Initialize sales tracker
     tracker = SalesTracker()
 
-    # Generate sales data
+    # Generate deals from real dataset
     deals = tracker.generate_sales_data(leads)
+
+    if deals is None or len(deals) == 0:
+        print("❌ Failed to generate deals")
+        return
 
     # Create dashboard
     metrics, funnel, forecasts = tracker.create_sales_dashboard(deals, leads)
 
     # Create visualizations
-    tracker.visualize
+    tracker.visualize_sales_data(deals, leads)
+
+
+if __name__ == '__main__':
+    demo_sales_tracking()

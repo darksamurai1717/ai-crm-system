@@ -1,259 +1,164 @@
+"""
+Lead Management System - Updated to use Real Dataset
+"""
 import pandas as pd
-import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 
 class LeadManager:
-    def __init__(self, csv_file='leads.csv'):
-        """Initialize Lead Manager and load existing leads"""
-        self.csv_file = csv_file
+    def __init__(self, dataset_path='data/dataset.csv'):
+        self.dataset_path = dataset_path
+        self.leads_df = None
+        self.load_dataset()
 
-        # Create leads file if doesn't exist
-        if not os.path.exists(self.csv_file):
-            print(f"Creating new leads database: {self.csv_file}")
-            self.leads_df = pd.DataFrame(columns=['name', 'email', 'phone', 'company', 'status',
-                                                  'created_date', 'last_contact', 'notes', 'score'])
-            # Add sample leads
-            self._create_sample_leads()
-            self.save_leads()
-        else:
-            self.leads_df = pd.read_csv(self.csv_file)
-            print(f"✅ Loaded {len(self.leads_df)} leads from {self.csv_file}")
-
-        # If still empty, add sample leads
-        if len(self.leads_df) == 0:
-            self._create_sample_leads()
-            self.save_leads()
-
-    def save_leads(self):
-        """Save leads database to file."""
-        self.leads_df.to_csv(self.csv_file, index=False)
-        print(f"✅ Leads saved to {self.csv_file}")
-
-    def _create_sample_leads(self):
-        """Create sample leads for testing"""
-        from datetime import datetime, timedelta
-        import random
-
-        sample_leads = [
-            {
-                'name': 'John Smith',
-                'email': 'john.smith@techcorp.com',
-                'phone': '555-0101',
-                'company': 'TechCorp Inc',
-                'status': 'New',
-                'created_date': (datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d'),
-                'last_contact': datetime.now().strftime('%Y-%m-%d'),
-                'notes': 'Interested in enterprise plan',
-                'score': 0
-            },
-            {
-                'name': 'Sarah Johnson',
-                'email': 'sarah.j@innovate.com',
-                'phone': '555-0102',
-                'company': 'Innovate Solutions',
-                'status': 'Contacted',
-                'created_date': (datetime.now() - timedelta(days=10)).strftime('%Y-%m-%d'),
-                'last_contact': (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d'),
-                'notes': 'Demo scheduled for next week',
-                'score': 0
-            },
-            {
-                'name': 'Mike Davis',
-                'email': 'mike.davis@startupco.com',
-                'phone': '555-0103',
-                'company': 'StartupCo',
-                'status': 'Qualified',
-                'created_date': (datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d'),
-                'last_contact': (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d'),
-                'notes': 'Budget approved, awaiting final decision',
-                'score': 0
-            },
-            {
-                'name': 'Emily Brown',
-                'email': 'emily.b@globaltech.com',
-                'phone': '555-0104',
-                'company': 'GlobalTech',
-                'status': 'Converted',
-                'created_date': (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'),
-                'last_contact': (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d'),
-                'notes': 'Signed annual contract - $50K',
-                'score': 0
-            },
-            {
-                'name': 'Robert Wilson',
-                'email': 'r.wilson@marketingpro.com',
-                'phone': '555-0105',
-                'company': 'Marketing Pro',
-                'status': 'New',
-                'created_date': (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d'),
-                'last_contact': (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d'),
-                'notes': 'Requested pricing information',
-                'score': 0
-            },
-            {
-                'name': 'Lisa Anderson',
-                'email': 'l.anderson@salesforce99.com',
-                'phone': '555-0106',
-                'company': 'SalesForce 99',
-                'status': 'Contacted',
-                'created_date': (datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d'),
-                'last_contact': datetime.now().strftime('%Y-%m-%d'),
-                'notes': 'Follow-up call scheduled',
-                'score': 0
-            },
-            {
-                'name': 'David Martinez',
-                'email': 'd.martinez@consulting.com',
-                'phone': '555-0107',
-                'company': 'Consulting Group',
-                'status': 'Qualified',
-                'created_date': (datetime.now() - timedelta(days=20)).strftime('%Y-%m-%d'),
-                'last_contact': (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d'),
-                'notes': 'Interested in premium features',
-                'score': 0
-            },
-            {
-                'name': 'Jennifer Lee',
-                'email': 'j.lee@dataanalytics.com',
-                'phone': '555-0108',
-                'company': 'Data Analytics Co',
-                'status': 'New',
-                'created_date': (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d'),
-                'last_contact': (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d'),
-                'notes': 'Website inquiry - needs demo',
-                'score': 0
-            }
-        ]
-
-        self.leads_df = pd.DataFrame(sample_leads)
-        print(f"✅ Created {len(self.leads_df)} sample leads")
-
-    def load_data(self):
-        """Load leads data from CSV file"""
+    def load_dataset(self):
+        """Load real dataset from CSV"""
         try:
-            if os.path.exists(self.data_file):
-                return pd.read_csv(self.data_file)
+            if os.path.exists(self.dataset_path):
+                self.leads_df = pd.read_csv(self.dataset_path)
+                print(f"✅ Loaded {len(self.leads_df)} leads from dataset")
             else:
-                # Create empty DataFrame with required columns
-                columns = ['id', 'name', 'email', 'phone', 'company', 'status',
-                           'created_date', 'last_contact', 'notes', 'score']
-                return pd.DataFrame(columns=columns)
+                print(f"❌ Dataset not found at {self.dataset_path}")
+                self.leads_df = pd.DataFrame()
         except Exception as e:
-            print(f"Error loading data: {e}")
-            return pd.DataFrame()
+            print(f"Error loading dataset: {e}")
+            self.leads_df = pd.DataFrame()
 
-    def create_lead(self, name, email, phone, company, notes=""):
-        """Create a new lead"""
-        new_id = len(self.leads_df) + 1
-        new_lead = {
-            'id': new_id,
-            'name': name,
-            'email': email,
-            'phone': phone,
-            'company': company,
-            'status': 'New',
-            'created_date': datetime.now().strftime('%Y-%m-%d'),
-            'last_contact': '',
-            'notes': notes,
-            'score': 0
+    def get_all_leads(self):
+        """Get all leads from dataset"""
+        if self.leads_df is None or self.leads_df.empty:
+            return []
+
+        leads = []
+        for _, row in self.leads_df.iterrows():
+            leads.append({
+                'id': row['lead_id'],
+                'name': row['name'],
+                'email': row['email'],
+                'phone': row['phone'],
+                'company': row['industry'],
+                'status': row['stage'],
+                'score': int(row['revenue_potential'] / 1000) if pd.notna(row['revenue_potential']) else 0,
+                'revenue_potential': row['revenue_potential'],
+                'created_date': row.get('created_date', ''),
+                'converted': row['converted'] == 1
+            })
+        return leads
+
+    def get_lead_by_id(self, lead_id):
+        """Get specific lead by ID"""
+        if self.leads_df is None or self.leads_df.empty:
+            return None
+
+        lead_row = self.leads_df[self.leads_df['lead_id'] == lead_id]
+        if lead_row.empty:
+            return None
+
+        row = lead_row.iloc[0]
+        return {
+            'id': row['lead_id'],
+            'name': row['name'],
+            'email': row['email'],
+            'phone': row['phone'],
+            'company': row['industry'],
+            'status': row['stage'],
+            'score': int(row['revenue_potential'] / 1000) if pd.notna(row['revenue_potential']) else 0,
+            'revenue_potential': row['revenue_potential'],
+            'created_date': row.get('created_date', ''),
+            'converted': row['converted'] == 1
         }
 
-        self.leads_df = pd.concat([self.leads_df, pd.DataFrame([new_lead])],
-                                  ignore_index=True)
-        self.save_data()
-        print(f"Lead created successfully: {name}")
-        return new_id
+    def get_hot_leads(self, threshold=50000):
+        """Get leads with high revenue potential"""
+        if self.leads_df is None or self.leads_df.empty:
+            return []
 
-    def read_leads(self, status=None):
-        """Read/Display leads"""
-        if status:
-            filtered_leads = self.leads_df[self.leads_df['status'] == status]
-        else:
-            filtered_leads = self.leads_df
+        hot_leads = self.leads_df[
+            (self.leads_df['revenue_potential'] >= threshold) &
+            (self.leads_df['converted'] == 0)
+            ]
+        return len(hot_leads)
 
-        print("\n--- LEADS ---")
-        print(filtered_leads.to_string(index=False))
-        return filtered_leads
+    def get_conversion_rate(self):
+        """Calculate conversion rate from dataset"""
+        if self.leads_df is None or self.leads_df.empty:
+            return 0.0
 
-    def update_lead(self, lead_id, **kwargs):
-        """Update lead information"""
-        if lead_id in self.leads_df['id'].values:
-            for key, value in kwargs.items():
-                if key in self.leads_df.columns:
-                    self.leads_df.loc[self.leads_df['id'] == lead_id, key] = value
+        total = len(self.leads_df)
+        converted = len(self.leads_df[self.leads_df['converted'] == 1])
+        return round((converted / total) * 100, 1) if total > 0 else 0.0
 
-            self.leads_df.loc[self.leads_df['id'] == lead_id, 'last_contact'] = \
-                datetime.now().strftime('%Y-%m-%d')
-            self.save_data()
-            print(f"Lead {lead_id} updated successfully")
-        else:
-            print(f"Lead with ID {lead_id} not found")
+    def get_total_revenue(self):
+        """Calculate total revenue from converted leads"""
+        if self.leads_df is None or self.leads_df.empty:
+            return 0
 
-    def delete_lead(self, lead_id):
-        """Delete a lead"""
-        if lead_id in self.leads_df['id'].values:
-            self.leads_df = self.leads_df[self.leads_df['id'] != lead_id]
-            self.save_data()
-            print(f"Lead {lead_id} deleted successfully")
-        else:
-            print(f"Lead with ID {lead_id} not found")
+        converted_leads = self.leads_df[self.leads_df['converted'] == 1]
+        total = converted_leads['deal_amount'].sum()
+        return int(total) if pd.notna(total) else 0
 
-    def move_lead_stage(self, lead_id, new_status):
-        """Move lead through pipeline stages"""
-        valid_statuses = ['New', 'Contacted', 'Qualified', 'Converted', 'Lost']
-        if new_status in valid_statuses:
-            self.update_lead(lead_id, status=new_status)
-            print(f"Lead {lead_id} moved to {new_status}")
-        else:
-            print(f"Invalid status. Use: {valid_statuses}")
+    def get_pipeline_distribution(self):
+        """Get distribution of leads by stage"""
+        if self.leads_df is None or self.leads_df.empty:
+            return {}
 
-    def import_from_csv(self, file_path):
-        """Import leads from CSV file"""
-        try:
-            imported_data = pd.read_csv(file_path)
-            self.leads_df = pd.concat([self.leads_df, imported_data], ignore_index=True)
-            self.save_data()
-            print(f"Imported {len(imported_data)} leads successfully")
-        except Exception as e:
-            print(f"Error importing data: {e}")
+        distribution = self.leads_df['stage'].value_counts().to_dict()
+        return distribution
 
-    def export_to_csv(self, file_path):
-        """Export leads to CSV file"""
-        try:
-            self.leads_df.to_csv(file_path, index=False)
-            print(f"Exported {len(self.leads_df)} leads to {file_path}")
-        except Exception as e:
-            print(f"Error exporting data: {e}")
+    def get_recent_activities(self, limit=10):
+        """Generate recent activities from dataset"""
+        if self.leads_df is None or self.leads_df.empty:
+            return []
 
-    def save_data(self):
-        """Save leads data to CSV file"""
-        os.makedirs(os.path.dirname(self.data_file), exist_ok=True)
-        self.leads_df.to_csv(self.data_file, index=False)
+        activities = []
+        recent_leads = self.leads_df.sort_values('last_login', ascending=False).head(limit)
 
+        for _, row in recent_leads.iterrows():
+            if row['converted'] == 1:
+                activities.append({
+                    'type': 'conversion',
+                    'lead_name': row['name'],
+                    'company': row['industry'],
+                    'amount': row['deal_amount'],
+                    'timestamp': row['last_login']
+                })
+            elif row['stage'] == 'Qualified':
+                activities.append({
+                    'type': 'qualified',
+                    'lead_name': row['name'],
+                    'company': row['industry'],
+                    'timestamp': row['last_login']
+                })
+            elif row['stage'] == 'Contacted':
+                activities.append({
+                    'type': 'contact',
+                    'lead_name': row['name'],
+                    'company': row['industry'],
+                    'timestamp': row['last_login']
+                })
 
-# Demo function
-def demo_lead_management():
-    lm = LeadManager()
+        return activities[:limit]
 
-    # Create sample leads
-    lm.create_lead("John Doe", "john@example.com", "123-456-7890", "Tech Corp")
-    lm.create_lead("Jane Smith", "jane@example.com", "098-765-4321", "Sales Inc")
+    def get_stats(self):
+        """Get comprehensive statistics"""
+        if self.leads_df is None or self.leads_df.empty:
+            return {
+                'total_leads': 0,
+                'converted': 0,
+                'conversion_rate': 0,
+                'total_revenue': 0,
+                'hot_leads': 0,
+                'avg_deal_size': 0
+            }
 
-    # Read all leads
-    lm.read_leads()
+        converted_leads = self.leads_df[self.leads_df['converted'] == 1]
 
-    # Update a lead
-    lm.update_lead(1, notes="Interested in product demo")
-
-    # Move lead through pipeline
-    lm.move_lead_stage(1, "Contacted")
-    lm.move_lead_stage(1, "Qualified")
-
-    # Read leads again
-    lm.read_leads()
-
-
-if __name__ == "__main__":
-    demo_lead_management()
+        return {
+            'total_leads': len(self.leads_df),
+            'converted': len(converted_leads),
+            'conversion_rate': self.get_conversion_rate(),
+            'total_revenue': self.get_total_revenue(),
+            'hot_leads': self.get_hot_leads(),
+            'avg_deal_size': int(converted_leads['deal_amount'].mean()) if len(converted_leads) > 0 else 0
+        }

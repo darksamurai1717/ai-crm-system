@@ -1,10 +1,8 @@
 deal_id,deal_name,lead_name,company,deal_value,deal_stage,probability,expected_close_date,created_date,sales_rep
-DEAL-0-0,TechCorp Inc - Product Sale,John Smith,TechCorp Inc,20557,Won,47,2025-12-18,2025-10-23,Bob Wilson
-DEAL-0-1,TechCorp Inc - Service Contract,John Smith,TechCorp Inc,11277,Qualification,74,2025-10-18,2025-10-23,Eva Martinez
-DEAL-1-0,Innovate Solutions - Product Sale,Sarah Johnson,Innovate Solutions,25006,Proposal,48,2026-01-06,2025-10-18,Eva Martinez
-DEAL-2-0,StartupCo - Product Sale,Mike Davis,StartupCo,54648,Won,43,2025-12-10,2025-10-13,Eva Martinez
-DEAL-5-0,SalesForce 99 - Product Sale,Lisa Anderson,SalesForce 99,19444,Lost,38,2025-10-31,2025-10-21,Carol Davis
-DEAL-6-0,Consulting Group - Product Sale,David Martinez,Consulting Group,101548,Won,47,2025-11-21,2025-10-08,David Brown
-DEAL-6-1,Consulting Group - Service Contract,David Martinez,Consulting Group,23875,Lost,13,2025-12-24,2025-10-08,Eva Martinez
-DEAL-7-0,Data Analytics Co - Product Sale,Jennifer Lee,Data Analytics Co,25004,Lost,25,2025-10-31,2025-10-27,Carol Davis
-DEAL-7-1,Data Analytics Co - Service Contract,Jennifer Lee,Data Analytics Co,133745,Won,22,2026-01-21,2025-10-27,Carol Davis
+DEAL-0-0,TechCorp Inc - Product Sale,John Smith,TechCorp Inc,86949,Prospecting,23,2026-01-12,2025-10-23,David Brown
+DEAL-0-1,TechCorp Inc - Service Contract,John Smith,TechCorp Inc,141184,Negotiation,48,2025-10-25,2025-10-23,David Brown
+DEAL-1-0,Innovate Solutions - Product Sale,Sarah Johnson,Innovate Solutions,148108,Negotiation,42,2025-10-07,2025-10-18,Eva Martinez
+DEAL-1-1,Innovate Solutions - Service Contract,Sarah Johnson,Innovate Solutions,145196,Prospecting,36,2025-11-21,2025-10-18,Alice Johnson
+DEAL-2-0,StartupCo - Product Sale,Mike Davis,StartupCo,144484,Won,16,2025-11-16,2025-10-13,Eva Martinez
+DEAL-4-0,Marketing Pro - Product Sale,Robert Wilson,Marketing Pro,136848,Negotiation,17,2025-11-22,2025-10-25,Eva Martinez
+DEAL-6-0,Consulting Group - Product Sale,David Martinez,Consulting Group,35316,Proposal,68,2026-01-24,2025-10-08,David Brown

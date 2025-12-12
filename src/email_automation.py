@@ -12,6 +12,39 @@ class EmailAutomation:
     def __init__(self, mail_instance):
         self.mail = mail_instance
 
+    def send_lead_notification(self, email, name):
+        """Send lead notification safely"""
+        try:
+            if not email or '@' not in email:
+                print(f"⚠️ Invalid email: {email}")
+                return False
+
+            msg = Message(
+                subject="Welcome to InnoStart CRM!",
+                recipients=[email],
+                body=f"Hello {name}, welcome to our CRM system!"
+            )
+            self.mail.send(msg)
+            print(f"✅ Email sent to {email}")
+            return True
+        except Exception as e:
+            print(f"⚠️ Email error: {e}")
+            return False
+
+    def send_team_notification(self, recipients, subject, body):
+        """Send team notifications safely"""
+        try:
+            valid_recipients = [r for r in recipients if r and '@' in r]
+            if not valid_recipients:
+                return False
+
+            msg = Message(subject=subject, recipients=valid_recipients, body=body)
+            self.mail.send(msg)
+            print(f"✅ Team email sent to {len(valid_recipients)} recipients")
+            return True
+        except Exception as e:
+            print(f"⚠️ Team email error: {e}")
+            return False
     def send_welcome_email(self, recipient_email, username):
         """Send welcome email to new users"""
         try:
